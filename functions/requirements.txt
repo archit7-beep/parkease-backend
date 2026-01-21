@@ -1,0 +1,6 @@
+flask
+firebase-admin
+stripe
+python-dotenv
+firebase-functions
+gunicorn

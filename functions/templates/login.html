@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ParkEase</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <span>🚘</span> ParkEase
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Smart Parking Management</p>
+            
+            <button class="btn-google" onclick="handleLogin()">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" width="20">
+                Continue with Google
+            </button>
+            <div id="error-msg" style="color: var(--danger); margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        // Check if already logged in
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                window.location.href = '/dashboard';
+            }
+        });
+    </script>
+</body>
+</html>

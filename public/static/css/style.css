@@ -1,0 +1,223 @@
+:root {
+    --bg-color: #0a0a0a;
+    --card-bg: #111111;
+    --text-primary: #ffffff;
+    --text-secondary: #aaaaaa;
+    --accent-green: #00e676;
+    --accent-hover: #00c853;
+    --danger: #ff5252;
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    box-sizing: border_box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Auth Container */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: radial-gradient(circle at top, #1a1a1a 0%, #0a0a0a 100%);
+}
+
+.auth-card {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.auth-logo {
+    color: var(--accent-green);
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-google {
+    background: #ffffff;
+    color: #333;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    width: 100%;
+    transition: transform 0.2s;
+}
+
+.btn-google:hover {
+    transform: translateY(-2px);
+}
+
+/* Dashboard */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .grid-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card {
+    background: linear-gradient(145deg, #161616, #111111);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-green), transparent);
+}
+
+.card-title {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    padding: 1rem;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, var(--accent-hover), var(--accent-green));
+    color: #000;
+    border: none;
+    padding: 1rem;
+    width: 100%;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-secondary {
+    background: #222;
+    color: white;
+    border: 1px solid #333;
+    padding: 0.8rem;
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.balance-display {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.amount {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.currency {
+    font-size: 2rem;
+    color: var(--text-secondary);
+}
+
+.status-badge {
+    background: rgba(0, 230, 118, 0.1);
+    color: var(--accent-green);
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(0, 230, 118, 0.2);
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    display: none;
+}
+.alert-success { background: rgba(0, 230, 118, 0.1); color: var(--accent-green); }
+.alert-error { background: rgba(255, 82, 82, 0.1); color: var(--danger); }
