@@ -71,12 +71,15 @@ def add_funds(uid, amount):
         new_bal = update_balance_transaction(transaction, user_ref, amount)
         
         # Record transaction log
-        db.collection('transactions').add({
+        # Record transaction log
+        txn_id = f"txn_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uid[:5]}"
+        db.collection('transactions').document(txn_id).set({
             'uid': uid,
             'amount': amount,
             'type': 'CREDIT_TOPUP',
             'timestamp': firestore.SERVER_TIMESTAMP,
-            'description': 'Wallet top-up'
+            'description': 'Wallet top-up',
+            'id': txn_id
         })
         
         return new_bal
@@ -140,12 +143,15 @@ def check_in_vehicle(uid, vehicle_number, daily_charge=50):
         new_bal = check_in_transaction(transaction, user_ref)
         
         # Log transaction
-        db.collection('transactions').add({
+        # Log transaction
+        txn_id = f"txn_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uid[:5]}_PARK"
+        db.collection('transactions').document(txn_id).set({
             'uid': uid,
             'amount': daily_charge,
             'type': 'DEBIT_PARKING',
             'vehicle': vehicle_number,
-            'timestamp': firestore.SERVER_TIMESTAMP
+            'timestamp': firestore.SERVER_TIMESTAMP,
+            'id': txn_id
         })
         
         return {"success": True, "new_balance": new_bal, "message": "Check-in successful"}
