@@ -93,6 +93,15 @@ def check_in_vehicle(uid, vehicle_number, daily_charge=50):
     @firestore.transactional
     def check_in_transaction(transaction, ref):
         snapshot = transaction.get(ref)
+        if not snapshot.exists:
+             # Auto-create if missing (Edge case fix)
+             transaction.set(ref, {
+                'email': 'unknown@parkease.com',
+                'wallet_balance': 0.0,
+                'created_at': firestore.SERVER_TIMESTAMP
+             })
+             raise ValueError("User initialized. Please add funds and try again.")
+        
         userData = snapshot.to_dict()
         
         # 1. Check Balance
