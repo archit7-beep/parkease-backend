@@ -87,7 +87,7 @@ def add_funds(uid, amount):
         print(f"Transaction failed: {e}")
         return False
 
-def check_in_vehicle(uid, vehicle_number, daily_charge=50):
+def check_in_vehicle(uid, vehicle_number, name="User", daily_charge=50):
     if not db: return {"success": False, "message": "Database not connected"}
     
     user_ref = db.collection('users').document(uid)
@@ -150,6 +150,7 @@ def check_in_vehicle(uid, vehicle_number, daily_charge=50):
             'amount': daily_charge,
             'type': 'DEBIT_PARKING',
             'vehicle': vehicle_number,
+            'name': name,  # Store the driver name
             'timestamp': firestore.SERVER_TIMESTAMP,
             'id': txn_id
         })

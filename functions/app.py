@@ -51,10 +51,12 @@ def check_in():
     data = request.json
     uid = data.get('uid')
     vehicle = data.get('vehicle')
+    name = data.get('name', 'User')  # Get name from request
+    
     if not uid or not vehicle:
         return jsonify({'success': False, 'message': 'Missing data'}), 400
         
-    result = firebase_service.check_in_vehicle(uid, vehicle)
+    result = firebase_service.check_in_vehicle(uid, vehicle, name)
     return jsonify(result)
 
 @app.route('/api/create-checkout-session', methods=['POST'])
