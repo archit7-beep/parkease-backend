@@ -4,10 +4,12 @@ import stripe
 from dotenv import load_dotenv
 import firebase_service
 from firebase_admin import auth
+from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app) # Enable CORS for all routes
 app.secret_key = os.getenv('SECRET_KEY', 'default_secret')
 
 # Stripe Setup

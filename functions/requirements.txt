@@ -3,3 +3,4 @@ firebase-admin
 stripe
 python-dotenv
 gunicorn
+flask-cors
