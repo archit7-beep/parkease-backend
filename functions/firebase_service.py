@@ -145,4 +145,4 @@ def check_in_vehicle(uid, vehicle_number, daily_charge=50):
         return {"success": False, "message": str(ve)}
     except Exception as e:
         print(f"Check-in error: {e}")
-        return {"success": False, "message": "System error"}
+        return {"success": False, "message": f"System error: {str(e)}"}
