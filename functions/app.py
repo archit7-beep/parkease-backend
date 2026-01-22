@@ -115,6 +115,14 @@ def confirm_session():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/api/history', methods=['GET'])
+def get_history():
+    uid = request.args.get('uid')
+    if not uid: return jsonify({'error': 'UID required'}), 400
+    
+    transactions = firebase_service.get_user_transactions(uid)
+    return jsonify({'history': transactions})
+
 # if __name__ == '__main__':
 #     app.run(debug=True, port=5000)
 

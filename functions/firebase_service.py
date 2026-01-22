@@ -160,3 +160,26 @@ def check_in_vehicle(uid, vehicle_number, daily_charge=50):
     except Exception as e:
         print(f"Check-in error: {e}")
         return {"success": False, "message": f"System error: {str(e)}"}
+
+def get_user_transactions(uid, limit=10):
+    if not db: return []
+    try:
+        # Query transactions where uid == user_uid, order by timestamp desc
+        docs = db.collection('transactions')\
+                .where(filter=firestore.FieldFilter('uid', '==', uid))\
+                .order_by('timestamp', direction=firestore.Query.DESCENDING)\
+                .limit(limit)\
+                .stream()
+        
+        history = []
+        for doc in docs:
+            data = doc.to_dict()
+            # Convert timestamp to ISO string for JSON serialization
+            if data.get('timestamp'):
+                data['timestamp'] = data['timestamp'].isoformat()
+            history.append(data)
+            
+        return history
+    except Exception as e:
+        print(f"Error fetching history: {e}")
+        return []
