@@ -63,10 +63,17 @@ def create_checkout_session():
         data = request.json
         amount = data.get('amount', 100)
         uid = data.get('uid')
+        email = data.get('email') # Get email
         
+        # Sanitize metadata (ensure strings)
+        safe_uid = str(uid).strip() if uid else "unknown"
+        safe_amount = str(amount).strip()
+
         # Create Checkout Session
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
+            customer_email=email,
+            locale='en', # Force English to avoid browser-locale crashes
             line_items=[{
                 'price_data': {
                     'currency': 'inr',
@@ -79,13 +86,13 @@ def create_checkout_session():
             }],
             mode='payment',
             metadata={
-                'uid': uid,
-                'amount':  str(amount)
+                'uid': safe_uid,
+                'amount': safe_amount
             },
             success_url='https://parkease-21eda.web.app/?session_id={CHECKOUT_SESSION_ID}',
             cancel_url='https://parkease-21eda.web.app/?canceled=true',
         )
-        return jsonify({'url': session.url})
+        return jsonify({'url': session.url, 'id': session.id})
     except Exception as e:
         return jsonify({'error': str(e)}), 403
 
