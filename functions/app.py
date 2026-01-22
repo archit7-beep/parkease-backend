@@ -57,51 +57,48 @@ def check_in():
     result = firebase_service.check_in_vehicle(uid, vehicle)
     return jsonify(result)
 
-@app.route('/api/payment/create-intent', methods=['POST'])
-def create_payment():
+@app.route('/api/create-checkout-session', methods=['POST'])
+def create_checkout_session():
     try:
         data = request.json
-        amount = data.get('amount', 500) # Default 500 INR
+        amount = data.get('amount', 100)
+        uid = data.get('uid')
         
-        intent = stripe.PaymentIntent.create(
-            amount=amount * 100, # cents/paisa
-            currency='inr',
-            automatic_payment_methods={'enabled': True},
+        # Create Checkout Session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'inr',
+                    'product_data': {
+                        'name': 'Wallet Top-up',
+                    },
+                    'unit_amount': int(amount * 100),
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=f'https://parkease-21eda.web.app/?session_id={{CHECKOUT_SESSION_ID}}&uid={uid}&amount={amount}',
+            cancel_url='https://parkease-21eda.web.app/?canceled=true',
         )
-        return jsonify({
-            'clientSecret': intent['client_secret']
-        })
+        return jsonify({'url': session.url})
     except Exception as e:
         return jsonify({'error': str(e)}), 403
 
-@app.route('/api/payment/confirm', methods=['POST'])
-def confirm_payment():
-    # In a real app, use Webhooks. For prototype, we trust the client call for now 
-    # BUT strictly speaking we should verify the intent status here or use webhooks.
-    # For simplicity/speed in this demo, we'll assume the client calls this after successful payment
-    # with the payment_intent_id to verify.
-    
+@app.route('/api/payment/confirm-session', methods=['POST'])
+def confirm_session():
     data = request.json
+    session_id = data.get('session_id')
     uid = data.get('uid')
     amount = data.get('amount')
-    payment_intent_id = data.get('payment_intent_id')
     
-    if not uid or not amount:
-        return jsonify({'success': False}), 400
-
-    # Retrieve intent to verify
     try:
-        # BYPASS for Demo/Mock payments
-        if payment_intent_id.startswith("pi_MOCK"):
-             new_bal = firebase_service.add_funds(uid, amount)
+        # Verify session with Stripe
+        session = stripe.checkout.Session.retrieve(session_id)
+        if session.payment_status == 'paid':
+             new_bal = firebase_service.add_funds(uid, float(amount))
              return jsonify({'success': True, 'new_balance': new_bal})
-
-        intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-        if intent.status == 'succeeded':
-            new_bal = firebase_service.add_funds(uid, amount)
-            return jsonify({'success': True, 'new_balance': new_bal})
-        else:
-             return jsonify({'success': False, 'message': 'Payment not successful'}), 400
+        return jsonify({'success': False, 'message': 'Payment not paid'}), 400
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
