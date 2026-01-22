@@ -73,12 +73,16 @@ def create_checkout_session():
                     'product_data': {
                         'name': 'Wallet Top-up',
                     },
-                    'unit_amount': int(amount * 100),
+                    'unit_amount': int(float(amount) * 100),
                 },
                 'quantity': 1,
             }],
             mode='payment',
-            success_url=f'https://parkease-21eda.web.app/?session_id={{CHECKOUT_SESSION_ID}}&uid={uid}&amount={amount}',
+            metadata={
+                'uid': uid,
+                'amount':  str(amount)
+            },
+            success_url='https://parkease-21eda.web.app/?session_id={CHECKOUT_SESSION_ID}',
             cancel_url='https://parkease-21eda.web.app/?canceled=true',
         )
         return jsonify({'url': session.url})
@@ -89,13 +93,15 @@ def create_checkout_session():
 def confirm_session():
     data = request.json
     session_id = data.get('session_id')
-    uid = data.get('uid')
-    amount = data.get('amount')
     
     try:
         # Verify session with Stripe
         session = stripe.checkout.Session.retrieve(session_id)
         if session.payment_status == 'paid':
+             # Retrieve secure data from metadata
+             uid = session.metadata.get('uid')
+             amount = session.metadata.get('amount')
+             
              new_bal = firebase_service.add_funds(uid, float(amount))
              return jsonify({'success': True, 'new_balance': new_bal})
         return jsonify({'success': False, 'message': 'Payment not paid'}), 400
