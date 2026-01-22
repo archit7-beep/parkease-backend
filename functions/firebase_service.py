@@ -7,16 +7,27 @@ from datetime import datetime, timedelta
 load_dotenv()
 
 # Initialize Firebase
+import json
+
 cred_path = os.getenv('FIREBASE_CREDENTIALS', 'serviceAccountKey.json')
+service_account_json = os.getenv('FIREBASE_SERVICE_ACCOUNT_JSON')
 
 try:
-    if os.path.exists(cred_path):
+    if service_account_json:
+        # Load from Env Var (Best for Render)
+        cred_dict = json.loads(service_account_json)
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred)
+        db = firestore.client()
+        print("Firebase initialized successfully from Environment Variable.")
+    elif os.path.exists(cred_path):
+        # Load from File (Best for Local)
         cred = credentials.Certificate(cred_path)
         firebase_admin.initialize_app(cred)
         db = firestore.client()
-        print("Firebase initialized successfully.")
+        print("Firebase initialized successfully from File.")
     else:
-        print(f"Warning: {cred_path} not found. Firebase features will not work until configured.")
+        print(f"Warning: neither {cred_path} nor FIREBASE_SERVICE_ACCOUNT_JSON found. DB disabled.")
         db = None
 except Exception as e:
     print(f"Error initializing Firebase: {e}")
