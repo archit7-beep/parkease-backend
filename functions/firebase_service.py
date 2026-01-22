@@ -92,7 +92,15 @@ def check_in_vehicle(uid, vehicle_number, daily_charge=50):
     # Use transaction for check-in
     @firestore.transactional
     def check_in_transaction(transaction, ref):
-        snapshot = transaction.get(ref)
+        snapshot_result = transaction.get(ref)
+        # Handle generator return type from transaction.get()
+        try:
+            # If it's a generator, get the first item
+            snapshot = next(snapshot_result)
+        except TypeError:
+            # If it's not iterable (already a snapshot), use it directly
+            snapshot = snapshot_result
+            
         if not snapshot.exists:
              # Auto-create if missing (Edge case fix)
              transaction.set(ref, {
