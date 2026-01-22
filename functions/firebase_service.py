@@ -164,10 +164,11 @@ def check_in_vehicle(uid, vehicle_number, daily_charge=50):
 def get_user_transactions(uid, limit=10):
     if not db: return []
     try:
-        # Query transactions where uid == user_uid, order by timestamp desc
+        # Query transactions where uid == user_uid
+        # KEY CHANGE: Removed .order_by('timestamp') to avoid "Missing Index" error.
+        # We will sort in Python instead.
         docs = db.collection('transactions')\
                 .where(filter=firestore.FieldFilter('uid', '==', uid))\
-                .order_by('timestamp', direction=firestore.Query.DESCENDING)\
                 .limit(limit)\
                 .stream()
         
@@ -178,6 +179,13 @@ def get_user_transactions(uid, limit=10):
             if data.get('timestamp'):
                 data['timestamp'] = data['timestamp'].isoformat()
             history.append(data)
+        
+        # Sort in Python (Desc by timestamp)
+        # Assuming timestamp string is ISO format which sorts correctly lexicographically
+        # OR better, rely on the fact we just converted it. 
+        # But wait, original timestamp is datetime object in DB? 
+        # 'data' here has string timestamp now.
+        history.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
             
         return history
     except Exception as e:
