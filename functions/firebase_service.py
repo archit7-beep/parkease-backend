@@ -145,14 +145,27 @@ def check_in_vehicle(uid, vehicle_number, name="User", daily_charge=50):
         # Log transaction
         # Log transaction
         txn_id = f"txn_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uid[:5]}_PARK"
+        timestamp = firestore.SERVER_TIMESTAMP
+        
+        # 1. Main Transaction Log (Financial)
         db.collection('transactions').document(txn_id).set({
             'uid': uid,
             'amount': daily_charge,
             'type': 'DEBIT_PARKING',
             'vehicle': vehicle_number,
-            'name': name,  # Store the driver name
-            'timestamp': firestore.SERVER_TIMESTAMP,
+            'name': name,
+            'timestamp': timestamp,
             'id': txn_id
+        })
+        
+        # 2. Dedicated Parking Entry (For Analysis)
+        db.collection('parking_entries').document(txn_id).set({
+            'uid': uid,
+            'name': name,
+            'vehicle': vehicle_number,
+            'timestamp': timestamp,
+            'status': 'active', # Can act as "Currently Parked" vs "History" later
+            'txn_id': txn_id
         })
         
         return {"success": True, "new_balance": new_bal, "message": "Check-in successful"}
