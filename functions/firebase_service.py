@@ -158,15 +158,35 @@ def check_in_vehicle(uid, vehicle_number, name="User", daily_charge=50):
             'id': txn_id
         })
         
-        # 2. Dedicated Parking Entry (For Analysis)
-        db.collection('parking_entries').document(txn_id).set({
+        # 2. Vehicle-Centric Analytics (Requested Feature)
+        # Doc ID is the Vehicle Number (e.g., "MH12AB1234")
+        # Stores a history array of all check-ins for this specific car
+        vehicle_ref = db.collection('vehicle_analytics').document(vehicle_number)
+        
+        entry_data = {
+            'txn_id': txn_id,
             'uid': uid,
             'name': name,
-            'vehicle': vehicle_number,
             'timestamp': timestamp,
-            'status': 'active', # Can act as "Currently Parked" vs "History" later
-            'txn_id': txn_id
-        })
+            'status': 'checked_in'
+        }
+
+        # Create doc if missing, then atomicaly add to history array
+        if not vehicle_ref.get().exists:
+            vehicle_ref.set({
+                'vehicle_number': vehicle_number,
+                'last_driver': name,
+                'last_uid': uid,
+                'total_visits': 1,
+                'history': [entry_data]
+            })
+        else:
+             vehicle_ref.update({
+                'last_driver': name,
+                'last_uid': uid,
+                'total_visits': firestore.Increment(1),
+                'history': firestore.ArrayUnion([entry_data])
+             })
         
         return {"success": True, "new_balance": new_bal, "message": "Check-in successful"}
     except ValueError as ve:
